@@ -1,50 +1,45 @@
-# test-manager-library-3145555-api
+# Backend API — Manager Library (PHP / Laravel)
 
-> **Prueba técnica · Ficha ADSO 3145555**
-> Horario: **miércoles 14 de octubre de 2026, de 6:50 a. m. a 11:00 a. m.** (hora Colombia). Entrega a las **11:00 a. m.**
+Backend de *Manager Library* implementado bajo principios innegociables de la Constitución y arquitectura hexagonal (Puertos y Adaptadores).
 
-Este repositorio es el **backend** de *Manager Library*, en **PHP con Laravel**. **Empieza vacío a propósito**: se construye en el fork de cada aprendiz.
+## Arquitectura y Principios de Diseño
 
-## Instrucciones
+1. **Dominio Puro (Artículo I):**
+   - Modelos: `Book`, `Category`, `Member`, `User`, `Loan`, `LoanItem`.
+   - Value Objects: `Isbn`, `Quantity`, `DateRange`.
+   - Excepciones de negocio con códigos mapeados a `api-contract.md`.
 
-Cada aprendiz debe **crear el fork** de los seis repositorios del proyecto y **resolver el proyecto
-con el spec planteado**.
+2. **Puertos y Adaptadores (Artículos II y III):**
+   - Puertos de Salida: Repositorios, `TokenIssuerInterface`, `PasswordHasherInterface`, `CoverStorageInterface`.
+   - Adaptadores: Implementaciones en PostgreSQL 16 (esquema `library`), Argon2id/Bcrypt y almacenamiento local.
+   - Bootstrap (`bootstrap/app.php`): Único punto de composición.
 
-1. Hacer fork, a su cuenta de GitHub, de cada repositorio de la tabla del final.
-2. Leer el spec en [`test-manager-library-3145555-docs`](https://github.com/code-sena/test-manager-library-3145555-docs).
-   Se entrega en dos versiones: `spec-python/` y `spec-.net/`.
-3. Desarrollar en los forks.
+3. **Invariantes del Motor (Artículos V, VI y VII):**
+   - Tablas en singular (`category`, `book`, `member`, `loan`, `loan_item`, `user`).
+   - Restricciones CHECK: `ck_book_available_range`, `ck_book_total_positive`, `ck_user_role`.
+   - Índices únicos parciales (`isbn` activo).
+   - El estado del préstamo (`open`, `overdue`, `closed`) se calcula dinámicamente y no se persiste.
+   - Las líneas de préstamo congelan `book_title`, `isbn` y `category_name` en el instante del préstamo (Artículo VIII).
 
-## El reto se desarrolla con React y PHP (Laravel)
+## Instrucciones de Ejecución
 
-El spec está escrito para Python y para .NET, pero el reto **no** se hace en esos lenguajes:
+1. Configurar variables de entorno:
+   ```bash
+   cp .env.example .env
+   ```
 
-| Capa | Tecnología del reto |
-|---|---|
-| Frontend | React |
-| Backend | PHP con Laravel |
+2. Ejecutar migraciones (creación de tablas, restricciones y semilla de categorías):
+   ```bash
+   php artisan migrate
+   ```
 
-Lo que el spec define sobre el negocio —historias, criterios de aceptación, reglas, contrato de la
-API, modelo de datos— se respeta. Lo que define sobre la tecnología se traduce a React y Laravel.
+3. Sembrar usuario administrador inicial desde variables de entorno:
+   ```bash
+   php artisan seed:admin
+   ```
 
-## La prueba no consiste en escribir el código
-
-El propósito principal es ver la **capacidad de desempeño con SDD** (*Spec-Driven Development*,
-desarrollo guiado por especificación): cómo se lee, se interpreta y se aplica una especificación
-para llevarla a un stack distinto. El código es el medio, no el fin.
-
-## Entrega
-
-Cuenta lo que quede **subido a los forks antes de las 11:00 a. m.** Lo que llegue después no se revisa.
-No hay prórroga: suban avances parciales con commits pequeños durante la prueba.
-
-## Los seis repositorios
-
-| Repositorio | Qué va ahí |
-|---|---|
-| [`test-manager-library-3145555-docs`](https://github.com/code-sena/test-manager-library-3145555-docs) | El spec: `spec-python/` y `spec-.net/` |
-| [`test-manager-library-3145555-api`](https://github.com/code-sena/test-manager-library-3145555-api) | Backend en PHP (Laravel) |
-| [`test-manager-library-3145555-app`](https://github.com/code-sena/test-manager-library-3145555-app) | Frontend en React |
-| [`test-manager-library-3145555-page`](https://github.com/code-sena/test-manager-library-3145555-page) | Sitio público estático de presentación |
-| [`test-manager-library-3145555-infra`](https://github.com/code-sena/test-manager-library-3145555-infra) | Contenedores, red, volúmenes y motor de base de datos vacío |
-| [`test-manager-library-3145555-tool`](https://github.com/code-sena/test-manager-library-3145555-tool) | Utilidades: sembrador de datos de demostración |
+4. Iniciar el servidor local:
+   ```bash
+   php artisan serve
+   ```
+   El backend estará disponible en `http://127.0.0.1:8000/api/v1`.
