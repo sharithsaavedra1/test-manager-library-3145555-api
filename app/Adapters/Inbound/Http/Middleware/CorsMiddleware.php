@@ -10,23 +10,30 @@ final class CorsMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $origin = $request->header('Origin', '*');
-        $allowedOrigin = env('CORS_ORIGIN', $origin);
+        $origin = $request->header('Origin');
+        $allowedOrigin = $origin ?: '*';
 
         if ($request->isMethod('OPTIONS')) {
-            return response('', 204)
-                ->header('Access-Control-Allow-Origin', $allowedOrigin)
-                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
-                ->header('Access-Control-Allow-Credentials', 'true');
+            $resp = new Response('', 204);
+            $resp->headers->set('Access-Control-Allow-Origin', $allowedOrigin);
+            $resp->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            $resp->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+            if ($origin) {
+                $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+            }
+            return $resp;
         }
 
         $response = $next($request);
 
-        $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin);
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        if ($response instanceof Response) {
+            $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin);
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+            if ($origin) {
+                $response->headers->set('Access-Control-Allow-Credentials', 'true');
+            }
+        }
 
         return $response;
     }
