@@ -1,0 +1,28 @@
+{
+    "name": "code-sena/manager-library-api",
+    "description": "Backend API for Manager Library (ADSO 3145555)",
+    "type": "project",
+    "require": {
+        "php": "^8.1",
+        "illuminate/container": "^10.0",
+        "illuminate/database": "^10.0",
+        "illuminate/events": "^10.0",
+        "illuminate/filesystem": "^10.0",
+        "illuminate/http": "^10.0",
+        "illuminate/routing": "^10.0",
+        "illuminate/support": "^10.0",
+        "illuminate/validation": "^10.0",
+        "ramsey/uuid": "^4.9",
+        "vlucas/phpdotenv": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}
